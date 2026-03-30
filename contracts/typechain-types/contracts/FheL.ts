@@ -41,6 +41,7 @@ export interface FheLInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "BPS"
+      | "LIQUIDATION_BPS"
       | "MAX_BORROW_BPS"
       | "borrow"
       | "deposit"
@@ -53,6 +54,10 @@ export interface FheLInterface extends Interface {
   ): EventFragment;
 
   encodeFunctionData(functionFragment: "BPS", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "LIQUIDATION_BPS",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "MAX_BORROW_BPS",
     values?: undefined
@@ -75,6 +80,10 @@ export interface FheLInterface extends Interface {
   ): string;
 
   decodeFunctionResult(functionFragment: "BPS", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "LIQUIDATION_BPS",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "MAX_BORROW_BPS",
     data: BytesLike
@@ -167,6 +176,8 @@ export interface FheL extends BaseContract {
 
   BPS: TypedContractMethod<[], [bigint], "view">;
 
+  LIQUIDATION_BPS: TypedContractMethod<[], [bigint], "view">;
+
   MAX_BORROW_BPS: TypedContractMethod<[], [bigint], "view">;
 
   borrow: TypedContractMethod<
@@ -195,6 +206,9 @@ export interface FheL extends BaseContract {
 
   getFunction(
     nameOrSignature: "BPS"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "LIQUIDATION_BPS"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "MAX_BORROW_BPS"

@@ -15,6 +15,8 @@ contract FheL {
 
     /// @notice Max borrow as basis points of collateral (80%)
     uint64 public constant MAX_BORROW_BPS = 8000;
+    /// @notice Liquidation when encrypted debt exceeds this fraction of collateral (75%)
+    uint64 public constant LIQUIDATION_BPS = 7500;
     uint64 public constant BPS = 10000;
 
     mapping(address => Position) internal _positions;
@@ -27,6 +29,14 @@ contract FheL {
     function _maxBorrow(euint64 collateral) internal returns (euint64) {
         return FHE.div(
             FHE.mul(collateral, FHE.asEuint64(MAX_BORROW_BPS)),
+            FHE.asEuint64(BPS)
+        );
+    }
+
+    /// @notice Encrypted liquidation threshold: collateral * LIQUIDATION_BPS / BPS
+    function _liquidationThreshold(euint64 collateral) internal returns (euint64) {
+        return FHE.div(
+            FHE.mul(collateral, FHE.asEuint64(LIQUIDATION_BPS)),
             FHE.asEuint64(BPS)
         );
     }
@@ -62,8 +72,8 @@ contract FheL {
     /// @notice Anyone may call; position is zeroed only when encrypted debt exceeds encrypted max borrow.
     function liquidate(address user) external {
         Position storage p = _positions[user];
-        euint64 maxB = _maxBorrow(p.collateral);
-        ebool isLiq = FHE.gt(p.debt, maxB);
+        euint64 liqLine = _liquidationThreshold(p.collateral);
+        ebool isLiq = FHE.gt(p.debt, liqLine);
         euint64 zero = FHE.asEuint64(0);
         p.collateral = FHE.select(isLiq, zero, p.collateral);
         p.debt = FHE.select(isLiq, zero, p.debt);
